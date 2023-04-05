@@ -8,52 +8,10 @@ using namespace std;
 #include <windows.h>
 #endif
 
-int total = 2;
+int variableTemporairePourLeScore = 0;
 
 vector<string> listeCouleur = {"Coeur", "Carreau", "Trèfle", "Pique"};
 vector<string> listeFigure = {"As", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix", "Valet", "Dame", "Roi"};
-
-class Joueur{
-private:
-    string nomJoueur;
-    vector<string> mainDuJoueur;
-    int nbCartes;
-
-public:
-    Joueur(string nom, vector<string> mainDuJoueur) {
-        this->nomJoueur = nom;
-        this->mainDuJoueur = mainDuJoueur;
-        this->nbCartes = mainDuJoueur.size();
-    }
-
-    string getNom(){
-        return this->nomJoueur;
-    }
-    string getMainJoueur(){
-        for (int i = 0; i < this->mainDuJoueur.size(); i++) {
-            cout << "Element " << i << " : " << this->mainDuJoueur[i] << endl;
-        }
-    }
-    int getNbCartes(){
-        return this->nbCartes;
-    }
-
-    void setNom(string new_name){
-        this->nomJoueur = new_name;
-    }
-    void setMainJoueur(vector<string> new_hand){
-        this->mainDuJoueur = new_hand;
-    }
-    void ajouterCarte(string new_card){
-        this->mainDuJoueur.push_back(new_card);
-    }
-
-    void afficherInfos(){
-        cout << "Nom du joueur : " << getNom() << endl;
-        cout << "Nombre de cartes : " << getNbCartes() << endl;
-        cout << "Main : \n" << getMainJoueur() << endl;
-    }
-};
 
 class Carte {
  private:
@@ -67,11 +25,16 @@ public :
     this->couleur = couleur;
         int chercheFigure = distance(listeFigure.begin(),find(listeFigure.begin(), listeFigure.end(),figure));
         if (figure == listeFigure[0]) {
-            valeur = 11;
-        }
+                if (variableTemporairePourLeScore < 21) {
+                    valeur = 11;
+                } else {
+                    valeur = 1;
+                }
+            }
         else if ( chercheFigure >= 9) {
             valeur = 10;
-        } else {
+        }
+        else {
             valeur = chercheFigure + 1;
         }
     }
@@ -533,7 +496,7 @@ private:
 
 public:
 
-    PaquetDeCartes(int nb) {
+    PaquetDeCartes(int nb=52) {
         this->nbCarte = nb;
     }
 
@@ -550,6 +513,10 @@ public:
         }
     }
 
+     vector<Carte> get_jeu() {
+        return this->jeu;
+    }
+
     void melanger() {
         random_device rd;
         mt19937 g(rd());
@@ -561,6 +528,55 @@ public:
         for (int i = 0; i < this->jeu.size(); ++i) {
             this->jeu[i].afficher_carte();
         }
+    }
+};
+
+class Joueur{
+private:
+    string nomJoueur;
+    vector<Carte> mainDuJoueur;
+    int nbCartes;
+
+public:
+    Joueur(string nom, vector<Carte> mainDuJoueur) {
+        this->nomJoueur = nom;
+        this->mainDuJoueur = mainDuJoueur;
+        this->nbCartes = mainDuJoueur.size();
+    }
+
+    string getNom(){
+        return this->nomJoueur;
+    }
+
+    vector<Carte> getMainJoueur(){
+        return this-> mainDuJoueur;
+    }
+
+    void afficherMainJoueur(){
+        vector<Carte> main = getMainJoueur();
+        for (int i = 0; i < main.size(); i++) {
+            cout << "Element " << i << " : " << main[i].get_figure() << "de" << main[i].get_couleur() << endl;
+        }
+    }
+
+    int getNbCartes(){
+        return this->nbCartes;
+    }
+
+    void setNom(string new_name){
+        this->nomJoueur = new_name;
+    }
+    void setMainJoueur(vector<Carte> new_hand){
+        this->mainDuJoueur = new_hand;
+    }
+    void ajouterCarte(Carte new_card){
+        this->mainDuJoueur.push_back(new_card);
+    }
+
+    void afficherInfos(){
+        cout << "Nom du joueur : " << getNom() << endl;
+        cout << "Nombre de cartes : " << getNbCartes() << endl;
+        /*cout << "Main : \n" << getMainJoueur() << endl;*/
     }
 };
 
@@ -593,44 +609,65 @@ string blackJack(){
 
     /* Création du paquet de cartes */
 
-    PaquetDeCartes* paquet = new PaquetDeCartes(52);
-    /*paquet->melanger();*/
+    PaquetDeCartes paquet = PaquetDeCartes();
+    paquet.CreerJeu();
+    paquet.melanger();
 
     /* Ajout des cartes dans la main de chaque joueur */
-    /*vector<string> paquetJoueur;
+    vector<Joueur> joueurs;
     for (int i = 0; i < nbJoueurs; ++i) {
-        for (int j = 0; j < 1; j++) {
-            Carte* carte = new Carte();
+        vector<Carte> mainJoueur;
+        int j = 0;
+        while(j < 2) {
+            Carte carte = paquet.get_jeu()[i];
+            if (carte.get_figure() == "As") {
+                int valeurAs;
+                while (valeurAs != 11 or valeurAs != 1){
+                    cout << "Quelle valeur voulez-vous donner a votre As ? " << endl;
+                    cin >> valeurAs;
+                    if (valeurAs == 11 or valeurAs == 1){
+                        carte.get_figure() = valeurAs;
+                    }
+                    else{
+                        cout << "La valeur doit etre 1 ou 11 !" << endl;
+                    }
+                }
+            }
+            mainJoueur.push_back(carte);
+            j++;
         }
-    }*/
+        Joueur nouveauJoueur = Joueur(prenoms[i], mainJoueur);
+        joueurs.push_back(nouveauJoueur);
+    }
 }
+
+
 
 int main() {
     #ifdef WIN32
         SetConsoleOutputCP(65001);
     #endif
 
-    /*Carte* c1 = new Carte(Figure::Roi, Couleur::Trefle);
+    Carte* c1 = new Carte(listeFigure[12], listeCouleur[2]);
     c1->afficher_carte();
-
+/*
     vector<string> mainJoueur;
     mainJoueur.push_back("As de coeur");
     mainJoueur.push_back("Roi de trefle");
-    Joueur* j1 = new Joueur("Michel", mainJoueur);
+    Joueur* j1 = new Joueur("Michel", vector<Carte>, mainJoueur);
     j1->afficherInfos();
-    delete j1;*/
+    delete j1;
 
     Carte* c999 = new Carte("Six", "Coeur");
     c999->afficher_carte();
-
+*/
     PaquetDeCartes* pqtdcrt = new PaquetDeCartes(52);
 
     pqtdcrt->CreerJeu();
     pqtdcrt->melanger();
     pqtdcrt->afficherPaquet();
 
-    /*
-    blackJack();*/
+    blackJack();
 
     return 0;
 }
