@@ -502,8 +502,8 @@ public:
 
     void CreerJeu() {
         if (this->nbCarte == 52){
-            for (int i = 0; i < 4 ; i++) {
-                for (int j = 0; j < 13; ++j) {
+            for (int j = 0; j < 4 ; j++) {
+                for (int i = 0; i < 13; ++i) {
                     Carte c = Carte(listeFigure[i], listeCouleur[j]);
                     this->jeu.emplace_back(move(c));
                 }
