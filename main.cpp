@@ -536,12 +536,17 @@ private:
     string nomJoueur;
     vector<Carte> mainDuJoueur;
     int nbCartes;
+    int score;
 
 public:
     Joueur(string nom, vector<Carte> mainDuJoueur) {
         this->nomJoueur = nom;
         this->mainDuJoueur = mainDuJoueur;
         this->nbCartes = mainDuJoueur.size();
+        for (int q = 0; q == nbCartes; q++) {
+            score += mainDuJoueur[q].get_valeur();
+        }
+        this->score = score;
     }
 
     string getNom(){
@@ -550,6 +555,10 @@ public:
 
     vector<Carte> getMainJoueur(){
         return this-> mainDuJoueur;
+    }
+
+    int getScore() {
+        return this-> score;
     }
 
     void afficherMainJoueur(){
@@ -580,7 +589,7 @@ public:
     }
 };
 
-string blackJack(){
+string BlackJack(){
 
     /* Initialisation du prénom des joueurs */
 
@@ -588,9 +597,9 @@ string blackJack(){
     string demandePrenom;
     vector<string> prenoms;
 
-    cout << "Combien de joueurs y a-t-il dans la partie : " << endl;
+    cout << "Combien de joueurs participeront à la la partie ? " << endl;
     cin >> nbJoueurs;
-    cout << "Voulez-vous ajouter des prenoms ?" << endl;
+    cout << "Voulez-vous ajouter des prénoms ?" << endl;
     cin >> demandePrenom ;
     if (demandePrenom == "oui"){
         for (int i = 0; i < nbJoueurs; ++i) {
@@ -607,37 +616,32 @@ string blackJack(){
         }
     }
 
-    /* Création du paquet de cartes */
+    // Création du paquet de cartes
 
     PaquetDeCartes paquet = PaquetDeCartes();
     paquet.CreerJeu();
     paquet.melanger();
 
-    /* Ajout des cartes dans la main de chaque joueur */
+    // Ajout des cartes dans la main de chaque joueur
     vector<Joueur> joueurs;
     for (int i = 0; i < nbJoueurs; ++i) {
         vector<Carte> mainJoueur;
         int j = 0;
         while(j < 2) {
             Carte carte = paquet.get_jeu()[i];
-            if (carte.get_figure() == "As") {
-                int valeurAs;
-                while (valeurAs != 11 or valeurAs != 1){
-                    cout << "Quelle valeur voulez-vous donner a votre As ? " << endl;
-                    cin >> valeurAs;
-                    if (valeurAs == 11 or valeurAs == 1){
-                        carte.get_figure() = valeurAs;
-                    }
-                    else{
-                        cout << "La valeur doit etre 1 ou 11 !" << endl;
-                    }
-                }
-            }
             mainJoueur.push_back(carte);
             j++;
         }
         Joueur nouveauJoueur = Joueur(prenoms[i], mainJoueur);
         joueurs.push_back(nouveauJoueur);
+    }
+
+    // Tour des joueurs
+    for (int a = 0; a == nbJoueurs; a++) {
+        cout << joueurs[a].getNom() << ", c'est à toi !" << endl;
+        cout << "Ton nombre de points actuel : " << joueurs[a].getScore() << endl;
+        cout << "Ta main actuelle : " << joueurs[a].afficherMainJoueur() << endl;
+        // rectification : variabletemporairepourlescore
     }
 }
 
@@ -648,26 +652,25 @@ int main() {
         SetConsoleOutputCP(65001);
     #endif
 
-    Carte* c1 = new Carte(listeFigure[12], listeCouleur[2]);
-    c1->afficher_carte();
-/*
-    vector<string> mainJoueur;
-    mainJoueur.push_back("As de coeur");
-    mainJoueur.push_back("Roi de trefle");
-    Joueur* j1 = new Joueur("Michel", vector<Carte>, mainJoueur);
+    cout << "Faisons une partie de Blackjack !" << endl;
+    BlackJack();
+
+
+
+    /*Carte c1 = Carte(listeFigure[12], listeCouleur[2]);
+    c1.afficher_carte();
+
+    vector<Carte> mainJoueur;
+    mainJoueur.push_back(c1);
+    Joueur* j1 = new Joueur("Michel", mainJoueur);
     j1->afficherInfos();
     delete j1;
 
     Carte* c999 = new Carte("Six", "Coeur");
-    c999->afficher_carte();
-*/
-    PaquetDeCartes* pqtdcrt = new PaquetDeCartes(52);
+    c999->afficher_carte();*/
 
-    pqtdcrt->CreerJeu();
-    pqtdcrt->melanger();
-    pqtdcrt->afficherPaquet();
 
-    blackJack();
+
 
     return 0;
 }
